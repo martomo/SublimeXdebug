@@ -1,0 +1,12 @@
+[
+  {
+    "caption": "Xdebug",
+    "children": [
+      { "command": "xdebug_breakpoint", "caption": "Toggle Breakpoint", "args": {} },
+      { "command": "xdebug_continue", "caption": "Run", "args": { "state": "run" } },
+      { "command": "xdebug_continue", "caption": "Step Over", "args": { "state": "step_over" } },
+      { "command": "xdebug_continue", "caption": "Step Into", "args": { "state": "step_into" } },
+      { "command": "xdebug_continue", "caption": "Step Out", "args": { "state": "step_out" } }
+    ]
+  }
+]

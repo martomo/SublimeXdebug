@@ -1,6 +1,6 @@
-# SublimeXDebug
+# SublimeXdebug
 
-Simple client to connect with XDebug.
+Simple client to connect with Xdebug.
 
 ## Features
 
@@ -9,17 +9,17 @@ Simple client to connect with XDebug.
 - Click variable to inspect value
 - Auto-launch web browser for session based debugging (see below)
 
-![Screenshot](https://github.com/Kindari/SublimeXdebug/raw/master/doc/images/screenshot.png)
+![Screenshot](https://github.com/martomo/SublimeXdebug/raw/master/doc/images/screenshot.png)
 
 ## Quick start
 
-Use `Shift+f8` to show a list of actions:
+Use `Shift+F8` to show a list of actions:
 
-- **Start debugger**: Start listening for an XDebug connection
+- **Start debugger**: Start listening for an Xdebug connection
 - **Add/Remove Breakpoint**: A marker in the gutter shows the breakpoint
 
-Once the XDebug connection is captured, using the same shortcut shows these
-XDebug actions:
+Once the Xdebug connection is captured, using the same shortcut shows these
+Xdebug actions:
 
 - **Continue**: Shows the debugger control menu (see below)
 - **Stop debugger**: Stop listening
@@ -37,18 +37,20 @@ XDebug actions:
 
 ## Shortcut keys
 
-- `Shift+f8`: Open XDebug quick panel
-- `f8`: Open XDebug control quick panel when debugger is connected
-- `Ctrl+f8`: Toggle breakpoint
-- `Ctrl+Shift+f5`: Run to next breakpoint
-- `Ctrl+Shift+f6`: Step over
-- `Ctrl+Shift+f7`: Step into
-- `Ctrl+Shift+f8`: Step out
+- `Shift+F8`: Open Xdebug quick panel
+- `F8`: Open Xdebug control quick panel when debugger is connected
+- `Ctrl+F8`: Toggle breakpoint
+- `Ctrl+Shift+F5`: Run to next breakpoint
+- `Ctrl+Shift+F6`: Step over
+- `Ctrl+Shift+F7`: Step into
+- `Ctrl+Shift+F8`: Step out
 
 ## Session based debugging
 
-This plugin can initiate and terminate a debugging session by launching your default web browser with the XDEBUG_SESSION_START or XDEBUG_SESSION_STOP parameters. The debug URL is defined in your .sublime-project file like this:
-	
+This plugin can initiate or terminate a debugging session by launching your default web browser and sending a web request to the configured URL with the following parameters XDEBUG_SESSION_START or XDEBUG_SESSION_STOP together with an IDE key.
+For remote debugging to resolve the file locations it is required to configure the path mapping with the server path as key and local path as value.
+The debug URL, IDE key and path mapping are defined in your .sublime-project file like this:
+
 	{
 		"folders":
 		[
@@ -58,45 +60,51 @@ This plugin can initiate and terminate a debugging session by launching your def
 		],
 
 		"settings": {
-			"xdebug": { "url": "http://your.web.server" }
+			"xdebug": {
+				"url": "http://your.web.server",
+				"ide_key": "your_custom_ide_key",
+				"path_mapping": {
+					"/path/to/file/on/server" : "/path/to/file/on/computer",
+					"/var/www/htdocs/example/" : "C:/git/websites/example/"
+				}
+			}
 		}
 	}
 
-If you don't configure the URL, the plugin will still listen for debugging connections from XDebug, but you will need to trigger XDebug <a href="http://XDebug.org/docs/remote">for a remote session</a>. The IDE Key should be "sublime.xdebug".
+If you do not configure the URL, the plugin will still listen for debugging connections from Xdebug, but you will need to trigger Xdebug <a href="http://xdebug.org/docs/remote">for a remote session</a>. By default the URL will use `sublime.xdebug` as IDE key.
 
 ## Gutter icon color
 
 You can change the color of the gutter icons by adding the following scopes to your theme file: xdebug.breakpoint, xdebug.current. Icons from [Font Awesome](http://fortawesome.github.com/Font-Awesome/).
 
-## Installing XDebug
+## Installing Xdebug
 
-Of course, SublimeXDebug won't do anything if you don't install and configure XDebug first.
+Of course, SublimeXdebug won't do anything if you don't install and configure Xdebug first.
 
-	<a href="http://xdebug.org/docs/install">Installation instructions</a>
+	(Installation instructions)[http://xdebug.org/docs/install]
 
-Here's how I setup XDebug on Ubuntu 12.04:
+Here's how to setup Xdebug on Ubuntu 12.04:
 
 - sudo apt-get install php5-xdebug
 - Configure settings in /etc/php5/conf.d/xdebug.ini
 - Restart Apache
 
+Below is a template for xdebug.ini, this should get you started, be warned if you are on a Live environment, comment or remove `remote_connect_back`.
+`remote_connect_back` (since Xdebug version 2.1) allows every debug request from any source to be accepted by Xdebug.
+
+	[xdebug]
+	zend_extension = /absolute/path/to/your/xdebug-extension.so
+	xdebug.remote_enable = 1
+	xdebug.remote_host = "127.0.0.1"
+	xdebug.remote_port = 9000
+	xdebug.remote_handler = "dbgp"
+	xdebug.remote_mode = req
+	xdebug.remote_connect_back = 1
+
 ## Troubleshooting
 
-XDebug won't stop at breakpoints on empty lines. The breakpoint must be on a line of PHP code.
+Xdebug won't stop at breakpoints on empty lines. The breakpoint must be on a line of PHP code.
+
+By default the debugger assumes Xdebug is configured to connect on port **9000**.
 
 If your window doesn't remove the debugging views when you stop debugging, then you can revert to a single document view by pressing `Shift+Alt+1`
-
-The debugger assumes XDebug is configured to connect on port 9000.
-
-Fixing pyexpat module errors. In Ubuntu you might need to do the following because Ubuntu stopped shipping Python 2.6 libraries a long time ago:
-
-	$ sudo apt-get install python2.6
-	$ ln -s /usr/lib/python2.6 [Sublime Text dir]/lib/
-
-On Ubuntu 12.04, Python 2.6 isn't available, so here's what worked for me:
-
-- Download python2.6 files from <a href="http://packages.ubuntu.com/lucid/python2.6">Ubuntu Archives</a>
-- Extract the files: dpkg-deb -x python2.6_2.6.5-1ubuntu6_i386.deb python2.6
-- Copy the extracted usr/lib/python2.6 folder to {Sublime Text directory}/lib
-
-In theory, it should work with any XDebug client, but I've only tested with PHP.
