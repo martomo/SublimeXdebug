@@ -1,7 +1,5 @@
 # SublimeXdebug
 
-Simple client to connect with Xdebug.
-
 ## Features
 
 - Automatically display scope variables and stack trace
@@ -15,16 +13,19 @@ Simple client to connect with Xdebug.
 
 Use `Shift+F8` to show a list of actions:
 
-- **Start debugger**: Start listening for an Xdebug connection
 - **Add/Remove Breakpoint**: A marker in the gutter shows the breakpoint
+- **Clear all Breakpoints**: Remove all breakpoint markers in the gutter
+- **Start debugging**: Start listening for an Xdebug connection
+- **Start debugging (Launch browser)**: Start listening for an Xdebug connection and open debug URL
 
 Once the Xdebug connection is captured, using the same shortcut shows these
 Xdebug actions:
 
-- **Continue**: Shows the debugger control menu (see below)
-- **Stop debugger**: Stop listening
-- **Add/remove breakpoint**
+- **Stop debugging**: Stop listening for an Xdebug connection
+- **Stop debugging (Launch browser)**: Stop listening for an Xdebug connection and open browser to end session
+- **Stop debugging (Close windows)**: Stop listening for an Xdebug connection and close all Xdebug windows
 - **Status**: Shows the client status in the status bar
+- **Execute**: Opens command line for sending raw commands
 
 ### Debugger control menu
 
@@ -48,7 +49,9 @@ Xdebug actions:
 ## Session based debugging
 
 This plugin can initiate or terminate a debugging session by launching your default web browser and sending a web request to the configured URL with the following parameters XDEBUG_SESSION_START or XDEBUG_SESSION_STOP together with an IDE key.
+
 For remote debugging to resolve the file locations it is required to configure the path mapping with the server path as key and local path as value.
+
 The debug URL, IDE key and path mapping are defined in your .sublime-project file like this:
 
 	{
@@ -81,15 +84,17 @@ You can change the color of the gutter icons by adding the following scopes to y
 
 Of course, SublimeXdebug won't do anything if you don't install and configure Xdebug first.
 
-	(Installation instructions)[http://xdebug.org/docs/install]
+	[Installation instructions](http://xdebug.org/docs/install)
 
-Here's how to setup Xdebug on Ubuntu 12.04:
+Here's a quick how to setup Xdebug on Ubuntu 12.04:
 
 - sudo apt-get install php5-xdebug
 - Configure settings in /etc/php5/conf.d/xdebug.ini
 - Restart Apache
 
-Below is a template for xdebug.ini, this should get you started, be warned if you are on a Live environment, comment or remove `remote_connect_back`.
+### Configuration
+
+Below is a template for xdebug.ini, this should get you started, be warned if you are on a Live environment, comment/remove `remote_connect_back`.
 `remote_connect_back` (since Xdebug version 2.1) allows every debug request from any source to be accepted by Xdebug.
 
 	[xdebug]
