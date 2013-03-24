@@ -31,8 +31,8 @@ Xdebug actions:
 
 - **Run**: run to the next breakpoint or end of the script
 - **Step Over**: steps to the next statement, if there is a function call on the line from which the step_over is issued then the debugger engine will stop at the statement after the function call in the same scope as from where the command was issued
-- **Step Out**: steps out of the current scope and breaks on the statement after returning from the current function
 - **Step Into**: steps to the next statement, if there is a function call involved it will break on the first statement in that function
+- **Step Out**: steps out of the current scope and breaks on the statement after returning from the current function
 - **Stop**: stops script execution immediately
 - **Detach**: stops interaction with debugger but allows script to finish
 
@@ -84,7 +84,7 @@ You can change the color of the gutter icons by adding the following scopes to y
 
 Of course, SublimeXdebug won't do anything if you don't install and configure Xdebug first.
 
-	[Installation instructions](http://xdebug.org/docs/install)
+[Installation instructions](http://xdebug.org/docs/install)
 
 Here's a quick how to setup Xdebug on Ubuntu 12.04:
 
@@ -94,7 +94,8 @@ Here's a quick how to setup Xdebug on Ubuntu 12.04:
 
 ### Configuration
 
-Below is a template for xdebug.ini, this should get you started, be warned if you are on a Live environment, comment/remove `remote_connect_back`.
+Below is a template for xdebug.ini, to get you started, be warned if you are on a Live environment, comment or remove `remote_connect_back`.
+
 `remote_connect_back` (since Xdebug version 2.1) allows every debug request from any source to be accepted by Xdebug.
 
 	[xdebug]

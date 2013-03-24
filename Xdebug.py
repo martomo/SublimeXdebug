@@ -457,8 +457,8 @@ class XdebugContinueCommand(sublime_plugin.TextCommand):
     """
     states = collections.OrderedDict()
     states['run'] = 'Run'
-    states['step_into'] = 'Step Into'
     states['step_over'] = 'Step Over'
+    states['step_into'] = 'Step Into'
     states['step_out'] = 'Step Out'
     states['stop'] = 'Stop'
     states['detach'] = 'Detach'
