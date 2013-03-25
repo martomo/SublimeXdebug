@@ -848,7 +848,7 @@ def get_real_path(uri, server=False):
     drive_pattern = re.compile(r'^[a-zA-Z]:\\')
 
     # Append leading slash if filesystem is not Windows
-    if not drive_pattern.match(uri):
+    if not drive_pattern.match(uri) and not os.path.isabs(uri):
         uri = os.path.normpath('/' + uri)
 
     path_mapping = get_project_setting('path_mapping') or get_setting('path_mapping')
