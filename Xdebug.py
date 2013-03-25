@@ -1,6 +1,7 @@
 import sublime
 import sublime_plugin
 import os
+import re
 import socket
 import base64
 import threading
@@ -87,7 +88,7 @@ class Protocol(object):
             data, self.buffer = self.buffer.split('\x00', 1)
             return data
         else:
-            raise(ProtocolConnectionException, "Not Connected")
+            raise ProtocolConnectionException("Xdebug is not connected")
 
     def read_data(self):
         length = self.read_until_null()
@@ -95,7 +96,7 @@ class Protocol(object):
         if int(length) == len(message):
             return message
         else:
-            raise(ProtocolException, "Length mismatch")
+            raise ProtocolException("Length mismatch encountered while reading the Xdebug message")
 
     def read(self):
         data = self.read_data()
@@ -126,7 +127,7 @@ class Protocol(object):
             self.sock.send(bytes(command + '\x00', 'utf8'))
             #print('--->', command)
         except Exception as x:
-            raise(ProtocolConnectionException, x)
+            raise ProtocolConnectionException(x)
 
     def accept(self):
         serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -140,7 +141,7 @@ class Protocol(object):
                 self.listening = True
                 self.sock = None
             except Exception as x:
-                raise(ProtocolConnectionException, x)
+                raise ProtocolConnectionException(x)
 
             while self.listening:
                 try:
@@ -214,9 +215,8 @@ class XdebugView(object):
     def breakpoint_init(self):
         if not self.breaks:
             return
-        uri = self.uri()
         for row in self.breaks:
-            protocol.send('breakpoint_set', t='line', f=uri, n=row)
+            protocol.send('breakpoint_set', t='line', f=self.uri(), n=row)
             res = protocol.read().firstChild
             self.breaks[row]['id'] = res.getAttribute('id')
 
@@ -333,8 +333,7 @@ class XdebugListenCommand(sublime_plugin.TextCommand):
     def gui_callback(self):
         sublime.status_message('Xdebug: Connected')
         init = protocol.read().firstChild
-        uri = init.getAttribute('fileuri')
-        show_file(self.view.window(), uri)
+        show_file(self.view.window(), init.getAttribute('fileuri'))
 
         for view in buffers.values():
             view.breakpoint_init()
@@ -493,7 +492,6 @@ class XdebugContinueCommand(sublime_plugin.TextCommand):
                     xdebug_current.current(int(child.getAttribute('lineno')))
 
         if (res.getAttribute('status') == 'break'):
-            # TODO stack_get
             protocol.send('context_get')
             res = protocol.read().firstChild
             result = ''
@@ -611,7 +609,11 @@ class XdebugExecute(sublime_plugin.TextCommand):
         res = protocol.read().firstChild
 
         window = self.view.window()
+        if window is None:
+            return
         output = window.get_output_panel('xdebug_execute')
+        if output is None:
+            return
         output.run_command("xdebug_view_update", {'data' : res.toprettyxml()} )
         window.run_command('show_panel', {"panel": 'output.xdebug_execute'})
 
@@ -839,27 +841,41 @@ def get_real_path(uri, server=False):
     except:
         filename = uri
 
-    # Get real path for the filesystem and remove trailing slashes
-    uri = os.path.realpath(filename)
+    # Normalize path for comparison and remove duplicate/trailing slashes
+    uri = os.path.normpath(filename)
+
+    # Pattern for checking if uri is a windows path
+    drive_pattern = re.compile(r'^[a-zA-Z]:\\')
+
+    # Append leading slash if filesystem is not Windows
+    if not drive_pattern.match(uri):
+        uri = os.path.normpath('/' + uri)
 
     path_mapping = get_project_setting('path_mapping') or get_setting('path_mapping')
     if not path_mapping is None:
         # Go through path mappings
         for server_path, local_path in path_mapping.items():
-            server_path = os.path.realpath(server_path)
-            local_path = os.path.realpath(local_path)
+            server_path = os.path.normpath(server_path)
+            local_path = os.path.normpath(local_path)
             # Replace path if mapping available
             if server:
                 # Map local path to server path
                 if local_path in uri:
-                    return urllib.parse.quote("file://" + uri.replace(local_path, server_path))
+                    uri = uri.replace(local_path, server_path)
+                    break
             else:
                 # Map server path to local path
                 if server_path in uri:
-                    return uri.replace(server_path, local_path)
+                    uri = uri.replace(server_path, local_path)
+                    break
     else:
         sublime.status_message("Xdebug: No path mapping defined, returning given path.")
 
+    # Replace slashes
+    if not drive_pattern.match(uri):
+        uri = uri.replace("\\", "/")
+
+    # Append scheme
     if server:
         return urllib.parse.quote("file://" + uri)
 
