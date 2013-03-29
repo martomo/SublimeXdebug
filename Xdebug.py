@@ -832,12 +832,11 @@ def get_real_path(uri, server=False):
     # URLdecode uri
     uri = urllib.parse.unquote(uri)
 
-    # Get filename
+    # Split scheme from uri to get absolute path
     try:
-        if sublime.platform() == 'windows':
-            transport, filename = uri.split(':///', 1)  # scheme:///C:/path/file => scheme, C:/path/file
-        else:
-            transport, filename = uri.split('://', 1)  # scheme:///path/file => scheme, /path/file
+        # scheme:///path/file => scheme, /path/file
+        # scheme:///C:/path/file => scheme, C:/path/file
+        transport, filename = uri.split(':///', 1) 
     except:
         filename = uri
 
@@ -845,7 +844,7 @@ def get_real_path(uri, server=False):
     uri = os.path.normpath(filename)
 
     # Pattern for checking if uri is a windows path
-    drive_pattern = re.compile(r'^[a-zA-Z]:\\')
+    drive_pattern = re.compile(r'^[a-zA-Z]:[\\/]')
 
     # Append leading slash if filesystem is not Windows
     if not drive_pattern.match(uri) and not os.path.isabs(uri):
