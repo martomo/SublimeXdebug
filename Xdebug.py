@@ -190,7 +190,7 @@ class XdebugView(object):
         pass
 
     def center(self, lineno):
-        line = self.lines(lineno)[0]
+        line = self.lines(lineno)[0].a
         self.view.show_at_center(line)
 
     def add_breakpoint(self, row):
